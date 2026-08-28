@@ -5,7 +5,6 @@ import {
   Search, 
   Volume2, 
   VolumeX, 
-  Sparkles, 
   Layers, 
   LayoutGrid, 
   ListOrdered, 
@@ -30,7 +29,7 @@ export default function LibraryHeader({
   setFilterFavorite,
   sortBy,
   setSortBy,
-  viewMode = 'shelf',
+  viewMode = 'table',
   setViewMode,
   onOpenAddModal,
   onOpenStatsModal,
@@ -42,214 +41,162 @@ export default function LibraryHeader({
 }) {
   return (
     <header className="modern-header-glass">
-      {/* Top Navbar Row: Brand, Counters, View Switcher & Action CTAs */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem' }}>
+      {/* Top Navbar Row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         
-        {/* Brand & Live Counter Chips */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
-          <div className="brand-identity">
-            <div className="brand-icon-box">
-              <BookOpen size={24} color="#f59e0b" />
-            </div>
-            <div>
-              <h1 className="brand-title-text">BOOK TRACKING SYSTEM</h1>
-              <p className="brand-subtitle-text">Curated Book & Digital Resource Tracker</p>
-            </div>
+        {/* Brand & Metrics */}
+        <div className="brand-identity">
+          <div className="brand-icon-box">
+            <BookOpen size={18} />
           </div>
-
-          {/* Quick Metrics */}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <span className="header-stat-chip">
-              <strong>{totalBooksCount}</strong> Books
-            </span>
-            <span className="header-stat-chip available">
-              <strong>{availableCount}</strong> Available
-            </span>
+          <div>
+            <h1 className="brand-title-text">Library Manager</h1>
+            <p className="brand-subtitle-text">{totalBooksCount} total books · {availableCount} available</p>
           </div>
         </div>
 
-        {/* Center: View Switcher (Shelf / Grid / Table) */}
+        {/* View Mode Switcher */}
         {setViewMode && (
           <div className="view-mode-switcher">
             <button
-              className={`view-mode-btn ${viewMode === 'shelf' ? 'active' : ''}`}
-              onClick={() => {
-                sound.playPageFlip();
-                setViewMode('shelf');
-              }}
-              title="3D Bookshelf View"
+              className={`view-mode-btn ${viewMode === 'table' ? 'active' : ''}`}
+              onClick={() => { sound.playPageFlip(); setViewMode('table'); }}
+              title="Table View"
             >
-              <Layers size={16} />
-              <span>Shelf</span>
+              <ListOrdered size={14} />
+              <span>Table</span>
             </button>
-
             <button
               className={`view-mode-btn ${viewMode === 'grid' ? 'active' : ''}`}
-              onClick={() => {
-                sound.playPageFlip();
-                setViewMode('grid');
-              }}
-              title="Modern Showcase Grid View"
+              onClick={() => { sound.playPageFlip(); setViewMode('grid'); }}
+              title="Grid View"
             >
-              <LayoutGrid size={16} />
+              <LayoutGrid size={14} />
               <span>Grid</span>
             </button>
-
             <button
-              className={`view-mode-btn ${viewMode === 'table' ? 'active' : ''}`}
-              onClick={() => {
-                sound.playPageFlip();
-                setViewMode('table');
-              }}
-              title="Catalog Table Ledger"
+              className={`view-mode-btn ${viewMode === 'shelf' ? 'active' : ''}`}
+              onClick={() => { sound.playPageFlip(); setViewMode('shelf'); }}
+              title="Shelf View"
             >
-              <ListOrdered size={16} />
-              <span>Catalog</span>
+              <Layers size={14} />
+              <span>Shelf</span>
             </button>
           </div>
         )}
 
-        {/* Right Actions: Sound, Stats, Reset, Add Tome */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+        {/* Header Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button
             className="btn-glass"
             onClick={onToggleSound}
-            title={isMuted ? 'Unmute library soundscapes' : 'Mute library acoustics'}
-            style={{ padding: '0.55rem 0.75rem' }}
+            title={isMuted ? 'Unmute' : 'Mute'}
+            style={{ padding: '0.45rem' }}
           >
-            {isMuted ? <VolumeX size={17} /> : <Volume2 size={17} color="#fbbf24" />}
+            {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
           </button>
 
           <button
             className="btn-glass"
             onClick={onOpenStatsModal}
-            title="Open Library Ledger & Analytics"
           >
-            <BarChart3 size={17} color="#818cf8" />
-            <span>Ledger</span>
+            <BarChart3 size={15} />
+            <span>Stats</span>
           </button>
 
           <button
             className="btn-glass"
-            onClick={() => {
-              sound.playWaxStamp();
-              onResetSeed();
-            }}
-            title="Restore Default Classic Library Archive"
+            onClick={() => { sound.playWaxStamp(); onResetSeed(); }}
           >
-            <RotateCcw size={15} />
+            <RotateCcw size={14} />
             <span>Reset</span>
           </button>
 
           <button
             className="btn-primary-gradient"
-            onClick={() => {
-              sound.playPageFlip();
-              onOpenAddModal();
-            }}
+            onClick={() => { sound.playPageFlip(); onOpenAddModal(); }}
           >
-            <Plus size={18} />
+            <Plus size={16} />
             <span>Add Book</span>
           </button>
         </div>
       </div>
 
-      {/* Filter & Search Bar */}
-      <div 
-        style={{ 
-          display: 'flex', 
-          flexWrap: 'wrap', 
-          gap: '0.85rem', 
-          marginTop: '1.25rem',
-          paddingTop: '1.15rem',
-          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-          alignItems: 'center'
-        }}
-      >
-        {/* Search Input */}
+      {/* Search & Filters */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.65rem',
+        marginTop: '1rem',
+        paddingTop: '0.85rem',
+        borderTop: '1px solid var(--border-subtle)',
+        alignItems: 'center'
+      }}>
+        {/* Search */}
         <div className="modern-search-box">
-          <Search size={17} color="#f59e0b" />
+          <Search size={15} color="var(--text-muted)" />
           <input
             type="text"
             className="modern-search-input"
-            placeholder="Search by title, author, genre, or ISBN..."
+            placeholder="Search by title, author, genre, ISBN..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           {searchTerm && (
-            <button 
-              className="search-clear-btn"
-              onClick={() => setSearchTerm('')}
-              title="Clear search"
-            >
-              <X size={15} />
+            <button className="search-clear-btn" onClick={() => setSearchTerm('')}>
+              <X size={14} />
             </button>
           )}
         </div>
 
-        {/* Quick Toggle Filters */}
+        {/* Toggles */}
         <button
           className={`filter-toggle-pill ${filterAvailable ? 'active' : ''}`}
-          onClick={() => {
-            sound.playPageFlip();
-            setFilterAvailable(!filterAvailable);
-          }}
+          onClick={() => { sound.playPageFlip(); setFilterAvailable(!filterAvailable); }}
         >
-          <Check size={14} color={filterAvailable ? '#34d399' : 'currentColor'} />
-          <span>Available Now</span>
+          <Check size={13} />
+          <span>Available</span>
         </button>
 
         <button
           className={`filter-toggle-pill ${filterFavorite ? 'active-fav' : ''}`}
-          onClick={() => {
-            sound.playWaxStamp();
-            setFilterFavorite(!filterFavorite);
-          }}
+          onClick={() => { sound.playWaxStamp(); setFilterFavorite(!filterFavorite); }}
         >
-          <Bookmark size={14} color={filterFavorite ? '#fbbf24' : 'currentColor'} />
+          <Bookmark size={13} />
           <span>Bookmarked</span>
         </button>
 
-        {/* Sort Dropdown */}
+        {/* Sort */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
-          <SlidersHorizontal size={15} color="#94a3b8" />
+          <SlidersHorizontal size={14} color="var(--text-muted)" />
           <select
             className="modern-select"
             value={sortBy}
-            onChange={(e) => {
-              sound.playPageFlip();
-              setSortBy(e.target.value);
-            }}
+            onChange={(e) => { sound.playPageFlip(); setSortBy(e.target.value); }}
           >
-            <option value="newest">Recent Registry</option>
-            <option value="rating">Highest Rating ★</option>
+            <option value="newest">Recently Added</option>
+            <option value="rating">Highest Rating</option>
             <option value="title">Title (A-Z)</option>
             <option value="author">Author (A-Z)</option>
-            <option value="year_desc">Year (Newest First)</option>
-            <option value="year_asc">Year (Oldest First)</option>
+            <option value="year_desc">Year (Newest)</option>
+            <option value="year_asc">Year (Oldest)</option>
           </select>
         </div>
       </div>
 
-      {/* Genre Pills Carousel */}
-      <div className="genre-pills-row" style={{ marginTop: '0.85rem' }}>
+      {/* Genre Filter */}
+      <div className="genre-pills-row" style={{ marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-subtle)' }}>
         <button
           className={`genre-pill-btn ${selectedGenre === 'All' ? 'active' : ''}`}
-          onClick={() => {
-            sound.playPageFlip();
-            setSelectedGenre('All');
-          }}
+          onClick={() => { sound.playPageFlip(); setSelectedGenre('All'); }}
         >
-          All Categories
+          All Genres
         </button>
         {genres.map((g) => (
           <button
             key={g}
             className={`genre-pill-btn ${selectedGenre === g ? 'active' : ''}`}
-            onClick={() => {
-              sound.playPageFlip();
-              setSelectedGenre(g);
-            }}
+            onClick={() => { sound.playPageFlip(); setSelectedGenre(g); }}
           >
             {g}
           </button>

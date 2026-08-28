@@ -5,7 +5,6 @@ import {
   CheckCircle2, 
   RotateCcw, 
   Star, 
-  ExternalLink,
   Plus
 } from 'lucide-react';
 import { sound } from '../utils/audio';
@@ -23,18 +22,12 @@ export default function BookCardGrid({
       {books.map((book) => {
         const isAvailable = book.copies_available > 0;
         const canReturn = book.copies_available < (book.total_copies || 1);
-        const coverColor = book.spine_color || '#7A1C29';
+        const accentColor = book.spine_color || '#6366f1';
 
         return (
           <div key={book.id} className="book-card-3d">
-            {/* 3D Cover Header */}
-            <div 
-              className="card-cover-header"
-              style={{
-                background: `linear-gradient(135deg, ${coverColor} 0%, rgba(15, 23, 42, 0.95) 100%)`,
-                borderBottom: `2px solid ${coverColor}`
-              }}
-            >
+            {/* Header */}
+            <div className="card-cover-header">
               <div className="card-badge-row">
                 <span className="card-genre-tag">
                   {book.genre}
@@ -47,97 +40,92 @@ export default function BookCardGrid({
                     sound.playWaxStamp();
                     onToggleFavorite(book.id);
                   }}
-                  title={book.is_favorite ? 'Bookmarked favorite' : 'Bookmark this tome'}
+                  title="Bookmark"
                 >
                   <Bookmark 
-                    size={16} 
-                    color={book.is_favorite ? '#fbbf24' : '#94a3b8'} 
-                    fill={book.is_favorite ? '#fbbf24' : 'none'} 
+                    size={14} 
+                    color={book.is_favorite ? 'var(--warning-text)' : 'var(--text-muted)'} 
+                    fill={book.is_favorite ? 'var(--warning-text)' : 'none'} 
                   />
                 </button>
               </div>
 
               <div>
-                <h3 className="card-cover-title">{book.title}</h3>
+                <h3 className="card-cover-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '6px', height: '14px', borderRadius: '2px', backgroundColor: accentColor, display: 'inline-block' }} />
+                  {book.title}
+                </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-                  <div style={{ display: 'flex', color: '#fbbf24' }}>
-                    <Star size={13} fill="#fbbf24" />
+                  <div style={{ display: 'flex', color: 'var(--warning-text)' }}>
+                    <Star size={12} fill="currentColor" />
                   </div>
-                  <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#fef08a' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
                     {Number(book.rating || 5.0).toFixed(1)}
                   </span>
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                     • {book.publish_year}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Card Body */}
+            {/* Body */}
             <div className="card-body-content">
               <div className="card-author-text">
-                By <strong style={{ color: 'var(--text-primary)' }}>{book.author}</strong>
+                by <strong style={{ color: 'var(--text-primary)' }}>{book.author}</strong>
               </div>
 
               <p className="card-description-preview">
-                {book.description || 'An esteemed classic work preserved in the Athenaeum catalog.'}
+                {book.description || 'No description available for this book entry.'}
               </p>
 
-              {/* Meta Row */}
               <div className="card-meta-row">
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                  ISBN: {book.isbn ? book.isbn.slice(0, 10) + '...' : 'N/A'}
+                  ISBN: {book.isbn ? book.isbn.slice(0, 13) : 'N/A'}
                 </span>
 
-                <span 
-                  style={{ 
-                    fontWeight: '600', 
-                    color: isAvailable ? 'var(--emerald-400)' : 'var(--rose-400)' 
-                  }}
-                >
-                  {isAvailable ? `${book.copies_available}/${book.total_copies || 1} Available` : 'Loaned Out'}
+                <span className={`status-pill ${isAvailable ? 'available' : 'loaned'}`}>
+                  {isAvailable ? `${book.copies_available} left` : 'Loaned Out'}
                 </span>
               </div>
 
-              {/* Action Buttons */}
+              {/* Actions */}
               <div className="card-actions-row">
                 <button
                   className="btn-glass"
-                  style={{ flex: 1, padding: '0.45rem 0.75rem', fontSize: '0.8rem' }}
+                  style={{ flex: 1, padding: '0.4rem 0.6rem', fontSize: '0.78rem' }}
                   onClick={() => {
                     sound.playPageFlip();
                     onSelectBook(book);
                   }}
                 >
-                  <BookOpen size={15} color="#fbbf24" />
-                  <span>Inspect</span>
+                  <BookOpen size={14} />
+                  <span>View</span>
                 </button>
 
                 {isAvailable ? (
                   <button
                     className="btn-primary-gradient"
-                    style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem' }}
+                    style={{ padding: '0.4rem 0.75rem', fontSize: '0.78rem' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       onBorrow(book.id);
                     }}
-                    title="Borrow a copy of this book"
                   >
-                    <CheckCircle2 size={14} />
+                    <CheckCircle2 size={13} />
                     <span>Borrow</span>
                   </button>
                 ) : (
                   <button
                     className="btn-glass"
-                    style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', color: '#fb7185', borderColor: 'rgba(244,63,94,0.3)' }}
+                    style={{ padding: '0.4rem 0.75rem', fontSize: '0.78rem', color: 'var(--danger-text)' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       onReturn(book.id);
                     }}
                     disabled={!canReturn}
-                    title="Return a borrowed copy"
                   >
-                    <RotateCcw size={14} />
+                    <RotateCcw size={13} />
                     <span>Return</span>
                   </button>
                 )}
@@ -147,15 +135,15 @@ export default function BookCardGrid({
         );
       })}
 
-      {/* Add New Tome Card in Grid */}
+      {/* Add Book Card */}
       <div 
         className="book-card-3d" 
         style={{ 
-          border: '2px dashed rgba(245, 158, 11, 0.3)', 
-          background: 'rgba(245, 158, 11, 0.02)',
+          border: '1px dashed var(--border-color)', 
+          background: 'var(--bg-surface)',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '340px',
+          minHeight: '280px',
           cursor: 'pointer'
         }}
         onClick={() => {
@@ -163,27 +151,28 @@ export default function BookCardGrid({
           onOpenAddModal();
         }}
       >
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <div style={{ textAlign: 'center', padding: '1.5rem' }}>
           <div 
             style={{ 
-              width: '56px', 
-              height: '56px', 
+              width: '40px', 
+              height: '40px', 
               borderRadius: '50%', 
-              background: 'rgba(245, 158, 11, 0.12)', 
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-color)', 
               display: 'inline-flex', 
               alignItems: 'center', 
               justifyContent: 'center',
-              color: '#fbbf24',
-              marginBottom: '1rem' 
+              color: 'var(--accent-primary)',
+              marginBottom: '0.75rem' 
             }}
           >
-            <Plus size={28} />
+            <Plus size={20} />
           </div>
-          <h4 style={{ fontFamily: 'var(--font-brand)', fontSize: '1.1rem', color: '#fbbf24', marginBottom: '4px' }}>
-            Add a Book
+          <h4 style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '4px' }}>
+            Add New Book
           </h4>
-          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-            Register a new book into the library catalogue
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            Create a new book entry in the library
           </p>
         </div>
       </div>

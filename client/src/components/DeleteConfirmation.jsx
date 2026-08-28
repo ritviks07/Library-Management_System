@@ -14,72 +14,40 @@ export default function DeleteConfirmation({ book, isOpen, onClose, onConfirm })
       onConfirm(book.id);
       setIsDeleting(false);
       onClose();
-    }, 400);
+    }, 300);
   };
 
   return (
     <div className="library-modal-overlay" onClick={onClose}>
-      <div 
-        className="modern-modal-card"
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '480px', textAlign: 'center' }}
-      >
-        <button
-          onClick={onClose}
-          className="modal-close-btn"
-          title="Cancel"
-        >
-          <X size={18} />
+      <div className="modern-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px', textAlign: 'center' }}>
+        <button onClick={onClose} className="modal-close-btn" title="Cancel">
+          <X size={15} />
         </button>
 
-        {/* Warning Icon */}
-        <div 
-          style={{ 
-            width: '56px', 
-            height: '56px', 
-            borderRadius: '16px', 
-            background: 'rgba(244, 63, 94, 0.15)', 
-            border: '1px solid rgba(244, 63, 94, 0.3)',
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            color: '#fb7185',
-            marginBottom: '1rem' 
-          }}
-        >
-          <AlertTriangle size={28} />
+        <div style={{
+          width: '44px', height: '44px', borderRadius: '50%',
+          background: 'var(--danger-bg)', border: '1px solid var(--danger-border)',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          color: 'var(--danger-text)', marginBottom: '0.85rem'
+        }}>
+          <AlertTriangle size={20} />
         </div>
 
-        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#fb7185', letterSpacing: '1.5px', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
-          Permanent Removal Confirmation
-        </span>
-
-        <h3 style={{ fontFamily: 'var(--font-brand)', fontSize: '1.45rem', color: '#fff', margin: '0.25rem 0 0.75rem 0' }}>
-          Excise Volume #{book.id}?
+        <h3 style={{ fontSize: '1.15rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+          Delete Book
         </h3>
 
-        <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.6', margin: '0.75rem 0 1.5rem 0' }}>
-          You are about to permanently remove <strong>"{book.title}"</strong> by <em>{book.author}</em> from The Athenaeum collection. This action cannot be reversed.
+        <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '1.25rem' }}>
+          Are you sure you want to delete <strong>"{book.title}"</strong>? This action cannot be undone.
         </p>
 
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-          <button
-            className="btn-glass"
-            onClick={onClose}
-            disabled={isDeleting}
-            style={{ flex: 1 }}
-          >
-            Cancel & Keep
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button className="btn-glass" onClick={onClose} disabled={isDeleting} style={{ flex: 1 }}>
+            Cancel
           </button>
-
-          <button
-            className="btn-danger-gradient"
-            onClick={handleConfirm}
-            disabled={isDeleting}
-            style={{ flex: 1, justifyContent: 'center' }}
-          >
-            <Trash2 size={16} />
-            <span>{isDeleting ? 'Removing...' : 'Excise Volume'}</span>
+          <button className="btn-danger-gradient" onClick={handleConfirm} disabled={isDeleting} style={{ flex: 1 }}>
+            <Trash2 size={14} />
+            <span>{isDeleting ? 'Deleting...' : 'Delete'}</span>
           </button>
         </div>
       </div>

@@ -53,7 +53,7 @@ export default function Bookshelf({ books = [], selectedBook, onSelectBook, onOp
           {/* Modern Walnut & Brass Shelf Plank */}
           <div className="shelf-plank">
             <div className="shelf-brass-plate">
-              BAY {romanNumerals[idx] || (idx + 1)} • ARCHIVAL SHELF
+              SECTION {romanNumerals[idx] || (idx + 1)}
             </div>
           </div>
         </div>

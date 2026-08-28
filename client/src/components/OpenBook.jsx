@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   ArrowLeft, 
   Edit3, 
   Trash2, 
   Bookmark, 
-  BookOpen, 
   ChevronLeft, 
   ChevronRight, 
   CheckCircle2, 
   RotateCcw,
-  Sparkles,
-  Star,
-  Quote,
-  Clock,
-  ShieldCheck
+  Star
 } from 'lucide-react';
 import { sound } from '../utils/audio';
 
@@ -30,386 +25,215 @@ export default function OpenBook({
   hasPrev,
   hasNext
 }) {
-  const [turningPage, setTurningPage] = useState(false);
+  const [opening, setOpening] = useState(true);
 
-  // Keyboard navigation shortcuts
+  // Play page flip sound & trigger opening animation when book changes
+  useEffect(() => {
+    sound.playPageFlip();
+    setOpening(true);
+    const timer = setTimeout(() => setOpening(false), 550);
+    return () => clearTimeout(timer);
+  }, [book?.id]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         sound.playPageFlip();
         onClose();
       } else if (e.key === 'ArrowLeft' && hasPrev) {
-        handlePrev();
+        onPrevBook();
       } else if (e.key === 'ArrowRight' && hasNext) {
-        handleNext();
+        onNextBook();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [hasPrev, hasNext, onClose]);
+  }, [hasPrev, hasNext, onClose, onPrevBook, onNextBook]);
 
   if (!book) return null;
 
   const isAvailable = book.copies_available > 0;
   const canReturn = book.copies_available < (book.total_copies || 1);
-  const leatherColor = book.spine_color || '#7a1c29';
   const totalCopies = book.total_copies || 1;
   const availablePercentage = Math.round((book.copies_available / totalCopies) * 100);
 
-  const handlePrev = () => {
-    if (!hasPrev) return;
-    sound.playPageFlip();
-    setTurningPage(true);
-    setTimeout(() => {
-      onPrevBook();
-      setTurningPage(false);
-    }, 180);
-  };
-
-  const handleNext = () => {
-    if (!hasNext) return;
-    sound.playPageFlip();
-    setTurningPage(true);
-    setTimeout(() => {
-      onNextBook();
-      setTurningPage(false);
-    }, 180);
-  };
-
   return (
     <div className="open-book-viewport" onClick={onClose}>
-      {/* Tome Nav Left */}
       <button
         className="tome-nav-arrow tome-nav-left"
-        onClick={(e) => {
-          e.stopPropagation();
-          handlePrev();
-        }}
+        onClick={(e) => { e.stopPropagation(); onPrevBook(); }}
         disabled={!hasPrev}
-        title="Previous Tome in Archive (Left Arrow)"
       >
-        <ChevronLeft size={24} />
+        <ChevronLeft size={20} />
       </button>
 
-      {/* Tome Nav Right */}
       <button
         className="tome-nav-arrow tome-nav-right"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleNext();
-        }}
+        onClick={(e) => { e.stopPropagation(); onNextBook(); }}
         disabled={!hasNext}
-        title="Next Tome in Archive (Right Arrow)"
       >
-        <ChevronRight size={24} />
+        <ChevronRight size={20} />
       </button>
 
       <div 
-        className="grand-tome-wrapper"
-        style={{ 
-          backgroundColor: leatherColor,
-          boxShadow: `0 35px 70px -15px rgba(0, 0, 0, 0.9), 0 0 50px ${leatherColor}44`
-        }}
+        className={`grand-tome-wrapper ${opening ? 'is-opening' : ''}`} 
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Silk Bookmark Ribbon */}
-        <div
-          className="silk-bookmark-ribbon"
-          onClick={() => {
-            sound.playWaxStamp();
-            onToggleFavorite(book.id);
-          }}
-          title={book.is_favorite ? 'Bookmarked favorite' : 'Bookmark this tome'}
-        >
-          <Bookmark 
-            size={18} 
-            color={book.is_favorite ? '#3a200a' : '#fff'} 
-            fill={book.is_favorite ? '#3a200a' : 'none'} 
-          />
-        </div>
-
-        {/* Dual Page Spread */}
         <div className="book-spread-container">
-          {/* Center Gutter */}
-          <div className="spine-center-gutter" />
-
-          {/* LEFT PAGE: Metadata, Identification, Rating & Circulation */}
-          <div className="left-book-page">
-            {/* Header: Back Button & Archive Badge */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <button
-                onClick={() => {
-                  sound.playPageFlip();
-                  onClose();
-                }}
-                className="btn-glass"
-                style={{ 
-                  color: '#4a3e36', 
-                  borderColor: '#d5c4a5', 
-                  background: 'rgba(0,0,0,0.04)',
-                  padding: '0.35rem 0.75rem',
-                  fontSize: '0.78rem'
-                }}
-              >
-                <ArrowLeft size={14} />
-                <span>Back to Shelf</span>
-              </button>
-
-              <span 
-                style={{ 
-                  fontFamily: 'var(--font-mono)', 
-                  fontSize: '0.75rem', 
-                  fontWeight: '600',
-                  color: '#8c531b',
-                  background: '#ecdcc0',
-                  padding: '3px 10px',
-                  borderRadius: '6px'
-                }}
-              >
-                ARCHIVE #{String(book.id).padStart(3, '0')}
-              </span>
-            </div>
-
-            {/* Title & Author Info */}
-            <div style={{ margin: '1.5rem 0 1rem 0', textAlign: 'center' }}>
-              <span 
-                style={{ 
-                  fontFamily: 'var(--font-sans)', 
-                  fontSize: '0.78rem', 
-                  color: '#8c651b', 
-                  letterSpacing: '1.5px', 
-                  textTransform: 'uppercase',
-                  fontWeight: '700'
-                }}
-              >
-                {book.genre}
-              </span>
-
-              <h2 
-                style={{ 
-                  fontFamily: 'var(--font-display)', 
-                  fontSize: '2rem', 
-                  color: '#1a1512', 
-                  lineHeight: '1.2', 
-                  margin: '0.5rem 0 0.35rem 0',
-                  fontWeight: '700'
-                }}
-              >
-                {book.title}
-              </h2>
-
-              <p 
-                style={{ 
-                  fontFamily: 'var(--font-serif)', 
-                  fontStyle: 'italic', 
-                  fontSize: '1.15rem', 
-                  color: '#5c4a3d' 
-                }}
-              >
-                Penned by {book.author}
-              </p>
-
-              {/* Rating Stars */}
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px', marginTop: '0.75rem' }}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star 
-                    key={star} 
-                    size={16} 
-                    fill={star <= Math.round(book.rating || 5) ? '#d97706' : '#d1c7b7'} 
-                    color={star <= Math.round(book.rating || 5) ? '#d97706' : '#d1c7b7'} 
-                  />
-                ))}
-                <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#8c531b', marginLeft: '6px' }}>
-                  {Number(book.rating || 5.0).toFixed(1)} / 5.0
-                </span>
-              </div>
-            </div>
-
-            {/* Circulation Meter Box */}
-            <div 
-              style={{ 
-                background: 'rgba(230, 218, 195, 0.45)', 
-                border: '1px solid #d8c8ab', 
-                borderRadius: '10px', 
-                padding: '1.1rem',
-                margin: '1rem 0'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontSize: '0.82rem', fontWeight: '700', color: '#4a3e36' }}>
-                  Circulation Status
-                </span>
-                <span 
-                  style={{ 
-                    fontSize: '0.8rem', 
-                    fontWeight: '700', 
-                    color: isAvailable ? '#15803d' : '#b91c1c' 
-                  }}
+          
+          {/* Left Page (Flips open from spine right) */}
+          <div className="left-book-page book-page-animated">
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <button
+                  onClick={() => { sound.playPageFlip(); onClose(); }}
+                  className="btn-glass"
+                  style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem' }}
                 >
-                  {isAvailable ? `${book.copies_available} of ${totalCopies} Available` : 'All Copies on Loan'}
+                  <ArrowLeft size={14} />
+                  <span>Back</span>
+                </button>
+
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                  ID #{book.id}
                 </span>
               </div>
 
-              {/* Progress bar */}
-              <div style={{ width: '100%', height: '8px', background: '#d5c5a8', borderRadius: '4px', overflow: 'hidden' }}>
-                <div 
-                  style={{ 
-                    width: `${availablePercentage}%`, 
-                    height: '100%', 
-                    background: isAvailable ? 'linear-gradient(90deg, #10b981, #059669)' : '#ef4444',
-                    borderRadius: '4px',
-                    transition: 'width 0.4s ease'
-                  }} 
-                />
+              <div style={{ marginBottom: '1rem' }}>
+                <span className="card-genre-tag" style={{ marginBottom: '0.5rem', display: 'inline-block' }}>
+                  {book.genre}
+                </span>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
+                  {book.title}
+                </h2>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                  by {book.author}
+                </p>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '0.5rem', color: 'var(--warning-text)' }}>
+                  <Star size={14} fill="currentColor" />
+                  <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>
+                    {Number(book.rating || 5.0).toFixed(1)} / 5.0
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Availability Box */}
+            <div style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0.85rem',
+              margin: '0.75rem 0'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '6px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Circulation</span>
+                <span className={`status-pill ${isAvailable ? 'available' : 'loaned'}`}>
+                  {isAvailable ? `${book.copies_available}/${totalCopies} Available` : 'Loaned Out'}
+                </span>
               </div>
 
-              {/* Quick Borrow / Return Buttons */}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
+              <div style={{ width: '100%', height: '6px', background: 'var(--bg-element)', borderRadius: '3px', overflow: 'hidden', marginBottom: '0.75rem' }}>
+                <div style={{
+                  width: `${availablePercentage}%`,
+                  height: '100%',
+                  background: isAvailable ? 'var(--success-text)' : 'var(--danger-text)',
+                  transition: 'width 0.4s ease'
+                }} />
+              </div>
+
+              <div style={{ display: 'flex', gap: '6px' }}>
                 <button
                   className="btn-primary-gradient"
-                  style={{ flex: 1, padding: '0.5rem', fontSize: '0.82rem' }}
+                  style={{ flex: 1, padding: '0.45rem', fontSize: '0.8rem' }}
                   onClick={() => onBorrow(book.id)}
                   disabled={!isAvailable}
                 >
-                  <CheckCircle2 size={15} />
-                  <span>Borrow Copy</span>
+                  <CheckCircle2 size={14} />
+                  <span>Borrow</span>
                 </button>
 
                 <button
                   className="btn-glass"
-                  style={{ 
-                    flex: 1, 
-                    padding: '0.5rem', 
-                    fontSize: '0.82rem', 
-                    color: '#4a3e36', 
-                    borderColor: '#d5c4a5', 
-                    background: 'rgba(0,0,0,0.05)' 
-                  }}
+                  style={{ flex: 1, padding: '0.45rem', fontSize: '0.8rem' }}
                   onClick={() => onReturn(book.id)}
                   disabled={!canReturn}
                 >
-                  <RotateCcw size={15} />
-                  <span>Return Copy</span>
+                  <RotateCcw size={14} />
+                  <span>Return</span>
                 </button>
               </div>
             </div>
 
-            {/* Footer Metadata */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#7a6859', borderTop: '1px solid #e0d1b9', paddingTop: '0.75rem' }}>
-              <span>Published: <strong>{book.publish_year}</strong></span>
-              <span>ISBN: <strong>{book.isbn}</strong></span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              <span>Published: {book.publish_year}</span>
+              <span>ISBN: {book.isbn || 'N/A'}</span>
             </div>
           </div>
 
-          {/* RIGHT PAGE: Synopsis, Quotes & Management */}
-          <div className="right-book-page">
-            {/* Header: Page Title */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: '700', letterSpacing: '1px', color: '#8c531b' }}>
-                ARCHIVAL SYNOPSIS
-              </span>
-              <span style={{ fontSize: '0.75rem', color: '#8c651b' }}>
-                FOLIO • {book.id}
-              </span>
-            </div>
+          {/* Right Page (Flips open from spine left) */}
+          <div className="right-book-page book-page-animated">
+            <div>
+              <h4 style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+                Description
+              </h4>
 
-            {/* Synopsis Content with Drop Cap */}
-            <div style={{ margin: '1.25rem 0', flex: 1 }}>
-              <p 
-                style={{ 
-                  fontFamily: 'var(--font-serif)', 
-                  fontSize: '1.12rem', 
-                  lineHeight: '1.75', 
-                  color: '#2a221b',
-                  textAlign: 'justify'
-                }}
-              >
-                <span 
-                  style={{ 
-                    float: 'left', 
-                    fontSize: '3.2rem', 
-                    lineHeight: '0.85', 
-                    fontFamily: 'var(--font-display)', 
-                    fontWeight: '700', 
-                    color: leatherColor, 
-                    paddingRight: '8px', 
-                    paddingTop: '4px' 
-                  }}
-                >
-                  {book.description ? book.description.charAt(0) : 'T'}
-                </span>
-                {book.description ? book.description.slice(1) : 'his volume holds an enduring place in literary heritage, preserved in the Athenaeum registry for scholars and avid readers alike.'}
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '1rem' }}>
+                {book.description || 'No description available for this volume.'}
               </p>
 
-              {/* Literary Quote / Excerpt Box */}
               {book.notes && (
-                <div 
-                  style={{ 
-                    marginTop: '1.25rem', 
-                    padding: '0.85rem 1.1rem', 
-                    background: 'rgba(216, 195, 160, 0.3)', 
-                    borderLeft: `4px solid ${leatherColor}`, 
-                    borderRadius: '0 8px 8px 0',
-                    fontFamily: 'var(--font-serif)',
-                    fontStyle: 'italic',
-                    fontSize: '0.98rem',
-                    color: '#423326'
-                  }}
-                >
-                  <Quote size={16} color={leatherColor} style={{ marginBottom: '4px' }} />
-                  <div>"{book.notes}"</div>
+                <div style={{
+                  padding: '0.75rem',
+                  background: 'var(--bg-surface)',
+                  borderLeft: '3px solid var(--accent-primary)',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.82rem',
+                  color: 'var(--text-secondary)',
+                  fontStyle: 'italic',
+                  marginBottom: '1rem'
+                }}>
+                  "{book.notes}"
                 </div>
               )}
             </div>
 
-            {/* Bottom Actions: Edit & Delete */}
-            <div 
-              style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
-                borderTop: '1px solid #ded0b6', 
-                paddingTop: '1rem',
-                gap: '8px'
-              }}
-            >
-              <div style={{ fontSize: '0.75rem', color: '#7a6859' }}>
-                Use <strong>← / →</strong> keys to navigate
-              </div>
+            {/* Bottom Actions */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+              <button
+                className="btn-glass"
+                onClick={() => {
+                  sound.playWaxStamp();
+                  onToggleFavorite(book.id);
+                }}
+              >
+                <Bookmark size={14} color={book.is_favorite ? 'var(--warning-text)' : 'currentColor'} />
+                <span>{book.is_favorite ? 'Bookmarked' : 'Bookmark'}</span>
+              </button>
 
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '6px' }}>
                 <button
                   className="btn-glass"
-                  style={{ 
-                    color: '#382f28', 
-                    borderColor: '#d5c4a5', 
-                    background: 'rgba(0,0,0,0.04)',
-                    padding: '0.45rem 0.85rem',
-                    fontSize: '0.82rem'
-                  }}
                   onClick={() => onEdit(book)}
                 >
-                  <Edit3 size={14} color="#8c531b" />
-                  <span>Edit Details</span>
+                  <Edit3 size={14} />
+                  <span>Edit</span>
                 </button>
 
                 <button
                   className="btn-glass"
-                  style={{ 
-                    color: '#b91c1c', 
-                    borderColor: '#fca5a5', 
-                    background: 'rgba(239, 68, 68, 0.08)',
-                    padding: '0.45rem 0.85rem',
-                    fontSize: '0.82rem'
-                  }}
+                  style={{ color: 'var(--danger-text)' }}
                   onClick={() => onDeletePrompt(book)}
                 >
                   <Trash2 size={14} />
-                  <span>Excise Volume</span>
+                  <span>Delete</span>
                 </button>
               </div>
             </div>
+
           </div>
+
         </div>
       </div>
     </div>

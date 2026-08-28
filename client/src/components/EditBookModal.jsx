@@ -1,22 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  X, 
-  Edit3, 
-  AlertCircle, 
-  Star 
-} from 'lucide-react';
+import { X, Edit3, AlertCircle } from 'lucide-react';
 import { sound } from '../utils/audio';
-
-const LEATHER_COLORS = [
-  { name: 'Crimson Ruby', hex: '#7A1C29' },
-  { name: 'Royal Indigo', hex: '#1E3D59' },
-  { name: 'Emerald Velvet', hex: '#1E4D36' },
-  { name: 'Cognac Amber', hex: '#8C531B' },
-  { name: 'Amethyst Plum', hex: '#4D2348' },
-  { name: 'Obsidian Slate', hex: '#22252A' },
-  { name: 'Vintage Bronze', hex: '#69381A' },
-  { name: 'Deep Teal', hex: '#184A45' }
-];
 
 const GENRES = [
   'Classic Fiction',
@@ -24,13 +8,12 @@ const GENRES = [
   'Fantasy',
   'Dystopian',
   'Gothic Horror',
-  'Romance / Classic',
+  'Romance',
   'Historical Fiction',
-  'Philosophical Fiction',
-  'Psychological Fiction',
-  'Epic Poetry / Classic',
-  'Mystery / Detective',
-  'Non-Fiction / Philosophy'
+  'Philosophy',
+  'Psychology',
+  'Mystery',
+  'Non-Fiction'
 ];
 
 export default function EditBookModal({ book, isOpen, onClose, onSubmit }) {
@@ -42,11 +25,10 @@ export default function EditBookModal({ book, isOpen, onClose, onSubmit }) {
     publish_year: 2000,
     copies_available: 1,
     total_copies: 1,
-    spine_color: '#7A1C29',
+    spine_color: '#6366f1',
     description: '',
-    rating: 4.8,
-    notes: '',
-    is_favorite: false
+    rating: 4.5,
+    notes: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -62,11 +44,10 @@ export default function EditBookModal({ book, isOpen, onClose, onSubmit }) {
         publish_year: book.publish_year || new Date().getFullYear(),
         copies_available: book.copies_available ?? 1,
         total_copies: book.total_copies ?? book.copies_available ?? 1,
-        spine_color: book.spine_color || '#7A1C29',
+        spine_color: book.spine_color || '#6366f1',
         description: book.description || '',
-        rating: book.rating ?? 4.8,
-        notes: book.notes || '',
-        is_favorite: Boolean(book.is_favorite)
+        rating: book.rating ?? 4.5,
+        notes: book.notes || ''
       });
       setErrors({});
     }
@@ -77,35 +58,22 @@ export default function EditBookModal({ book, isOpen, onClose, onSubmit }) {
   const validate = () => {
     const errs = {};
     if (!formData.title.trim()) errs.title = 'Title is required.';
-    if (!formData.author.trim()) errs.author = 'Author name is required.';
-    if (!formData.isbn.trim()) {
-      errs.isbn = 'ISBN is required.';
-    }
-    if (!formData.genre.trim()) errs.genre = 'Genre is required.';
+    if (!formData.author.trim()) errs.author = 'Author is required.';
+    if (!formData.isbn.trim()) errs.isbn = 'ISBN is required.';
     if (isNaN(formData.publish_year) || formData.publish_year < 1000) {
       errs.publish_year = 'Enter a valid 4-digit year.';
     }
     if (formData.copies_available < 0) {
-      errs.copies_available = 'Copies available cannot be negative.';
+      errs.copies_available = 'Cannot be negative.';
     }
-    if (formData.total_copies < formData.copies_available) {
-      errs.total_copies = 'Total copies cannot be less than available copies.';
-    }
-    
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    sound.playQuillScratch();
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: null }));
-    }
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
   };
 
   const handleSubmit = async (e) => {
@@ -132,114 +100,29 @@ export default function EditBookModal({ book, isOpen, onClose, onSubmit }) {
 
   return (
     <div className="library-modal-overlay" onClick={onClose}>
-      <div 
-        className="modern-modal-card"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="modal-close-btn"
-          title="Close dialog"
-        >
-          <X size={18} />
+      <div className="modern-modal-card" onClick={(e) => e.stopPropagation()}>
+        <button onClick={onClose} className="modal-close-btn" title="Close">
+          <X size={16} />
         </button>
 
-        {/* Modal Header */}
-        <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div 
-            style={{ 
-              width: '42px', 
-              height: '42px', 
-              borderRadius: '12px', 
-              background: 'rgba(99, 102, 241, 0.15)', 
-              border: '1px solid rgba(99, 102, 241, 0.3)',
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: '#818cf8'
-            }}
-          >
-            <Edit3 size={20} />
-          </div>
-          <div>
-            <h2 style={{ fontFamily: 'var(--font-brand)', fontSize: '1.4rem', color: '#fff', lineHeight: 1.2 }}>
-              Edit Tome Inscription
-            </h2>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-              Updating Folio #{book.id} • {book.title}
-            </p>
-          </div>
-        </div>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
+          Edit Book Details
+        </h2>
+        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+          Update the record for #{book.id} - {book.title}
+        </p>
 
         {errors.global && (
-          <div style={{ background: 'rgba(244,63,94,0.15)', border: '1px solid rgba(244,63,94,0.3)', color: '#fb7185', padding: '0.75rem 1rem', borderRadius: '10px', marginBottom: '1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <AlertCircle size={16} />
+          <div style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-sm)', marginBottom: '1rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <AlertCircle size={15} />
             <span>{errors.global}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Live Spine Preview & Color Picker */}
-          <div 
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '1.5rem', 
-              background: 'rgba(0,0,0,0.3)', 
-              border: '1px solid var(--glass-border)', 
-              borderRadius: '12px', 
-              padding: '1rem',
-              marginBottom: '1.25rem' 
-            }}
-          >
-            <div 
-              style={{ 
-                width: '48px', 
-                height: '110px', 
-                borderRadius: '5px',
-                background: `linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(255,255,255,0.2) 20%, ${formData.spine_color} 50%, rgba(0,0,0,0.7) 100%)`,
-                boxShadow: '0 8px 18px rgba(0,0,0,0.6)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                padding: '6px 2px',
-                alignItems: 'center',
-                flexShrink: 0
-              }}
-            >
-              <div style={{ width: '80%', height: '2px', background: 'rgba(251,191,36,0.8)' }} />
-              <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontSize: '0.55rem', fontWeight: '700', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '85px', textOverflow: 'ellipsis' }}>
-                {formData.title || 'Edit Tome'}
-              </div>
-              <div style={{ width: '80%', height: '2px', background: 'rgba(251,191,36,0.8)' }} />
-            </div>
-
-            <div style={{ flex: 1 }}>
-              <span className="form-label" style={{ display: 'block', marginBottom: '6px' }}>
-                Spine Finish:
-              </span>
-              <div className="color-swatch-row">
-                {LEATHER_COLORS.map((c) => (
-                  <div
-                    key={c.hex}
-                    className={`color-swatch-circle ${formData.spine_color === c.hex ? 'selected' : ''}`}
-                    style={{ backgroundColor: c.hex }}
-                    onClick={() => {
-                      sound.playPageFlip();
-                      setFormData(prev => ({ ...prev, spine_color: c.hex }));
-                    }}
-                    title={c.name}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
           <div className="form-grid-2">
             <div className="form-group">
-              <label className="form-label">Tome Title *</label>
+              <label className="form-label">Title *</label>
               <input
                 type="text"
                 name="title"
@@ -251,7 +134,7 @@ export default function EditBookModal({ book, isOpen, onClose, onSubmit }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Author Name *</label>
+              <label className="form-label">Author *</label>
               <input
                 type="text"
                 name="author"
@@ -265,14 +148,8 @@ export default function EditBookModal({ book, isOpen, onClose, onSubmit }) {
 
           <div className="form-grid-2">
             <div className="form-group">
-              <label className="form-label">Genre Category</label>
-              <select
-                name="genre"
-                className="modern-select"
-                value={formData.genre}
-                onChange={handleChange}
-                style={{ width: '100%' }}
-              >
+              <label className="form-label">Genre</label>
+              <select name="genre" className="form-input" value={formData.genre} onChange={handleChange}>
                 {GENRES.map((g) => (
                   <option key={g} value={g}>{g}</option>
                 ))}
@@ -280,7 +157,7 @@ export default function EditBookModal({ book, isOpen, onClose, onSubmit }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">ISBN Identifier</label>
+              <label className="form-label">ISBN *</label>
               <input
                 type="text"
                 name="isbn"
@@ -294,7 +171,7 @@ export default function EditBookModal({ book, isOpen, onClose, onSubmit }) {
 
           <div className="form-grid-2">
             <div className="form-group">
-              <label className="form-label">Copies Available</label>
+              <label className="form-label">Available Copies</label>
               <input
                 type="number"
                 name="copies_available"
@@ -303,76 +180,63 @@ export default function EditBookModal({ book, isOpen, onClose, onSubmit }) {
                 value={formData.copies_available}
                 onChange={handleChange}
               />
-              {errors.copies_available && <span className="form-error-text">{errors.copies_available}</span>}
             </div>
 
             <div className="form-group">
-              <label className="form-label">Total Inventory Copies</label>
+              <label className="form-label">Total Copies</label>
               <input
                 type="number"
                 name="total_copies"
                 min="1"
-                className={`form-input ${errors.total_copies ? 'error' : ''}`}
+                className="form-input"
                 value={formData.total_copies}
                 onChange={handleChange}
               />
-              {errors.total_copies && <span className="form-error-text">{errors.total_copies}</span>}
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">Rating: ★ {formData.rating}</label>
-            <input
-              type="range"
-              name="rating"
-              min="1.0"
-              max="5.0"
-              step="0.1"
-              value={formData.rating}
-              onChange={handleChange}
-              style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
-            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+              <label className="form-label">Rating</label>
+              <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--warning-text)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                ★ {formData.rating} / 5.0
+              </span>
+            </div>
+            <div className="custom-range-slider-container">
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>1.0</span>
+              <input
+                type="range"
+                name="rating"
+                min="1.0"
+                max="5.0"
+                step="0.1"
+                className="custom-range-slider"
+                value={formData.rating}
+                onChange={handleChange}
+              />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>5.0</span>
+            </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">Archival Synopsis</label>
+            <label className="form-label">Description</label>
             <textarea
               name="description"
               className="form-input"
               rows="3"
               value={formData.description}
               onChange={handleChange}
+              style={{ resize: 'vertical' }}
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Notable Excerpt / Quote</label>
-            <input
-              type="text"
-              name="notes"
-              className="form-input"
-              value={formData.notes}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)' }}>
-            <button
-              type="button"
-              className="btn-glass"
-              onClick={onClose}
-              disabled={submitting}
-            >
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+            <button type="button" className="btn-glass" onClick={onClose} disabled={submitting}>
               Cancel
             </button>
-
-            <button
-              type="submit"
-              className="btn-primary-gradient"
-              disabled={submitting}
-            >
-              <Edit3 size={16} />
-              <span>{submitting ? 'Saving Changes...' : 'Save Inscription'}</span>
+            <button type="submit" className="btn-primary-gradient" disabled={submitting}>
+              <Edit3 size={15} />
+              <span>{submitting ? 'Saving...' : 'Save Changes'}</span>
             </button>
           </div>
         </form>

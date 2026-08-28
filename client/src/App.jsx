@@ -37,7 +37,7 @@ function AppContent() {
 
   // View Mode: 'shelf' | 'grid' | 'table'
   const [viewMode, setViewMode] = useState(() => {
-    return localStorage.getItem('athenaeum_view_mode') || 'shelf';
+    return localStorage.getItem('athenaeum_view_mode') || 'table';
   });
 
   const handleSetViewMode = (mode) => {
@@ -312,8 +312,9 @@ function AppContent() {
 
         {/* Content View Switching */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '5rem 0', color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-            ✨ Loading Book Tracking System...
+          <div className="loading-state">
+            <div className="loading-spinner" />
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Loading library catalog...</p>
           </div>
         ) : books.length === 0 ? (
           <EmptyShelf
