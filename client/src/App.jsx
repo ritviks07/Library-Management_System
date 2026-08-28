@@ -313,7 +313,7 @@ function AppContent() {
         {/* Content View Switching */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '5rem 0', color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-            ✨ Loading Library Management System...
+            ✨ Loading Book Tracking System...
           </div>
         ) : books.length === 0 ? (
           <EmptyShelf

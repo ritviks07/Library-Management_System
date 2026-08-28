@@ -152,7 +152,7 @@ export default function AddBookModal({ isOpen, onClose, onSubmit }) {
               Add a Book
             </h2>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-              Register a new book into the library management system
+              Register a new book into the book tracking system
             </p>
           </div>
         </div>

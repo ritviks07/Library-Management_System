@@ -1,6 +1,6 @@
-# 📚 Library Management System
+# 📚 Book Tracking System
 
-A modern, interactive Full-Stack (PERN) **Library Management System** featuring a 3D bookshelf experience, showcase grid view, catalog table ledger, interactive hardcover reader, live book spine previews, soundscapes, and full CRUD operations.
+A modern, interactive Full-Stack (PERN) **Book Tracking System** featuring a 3D bookshelf experience, showcase grid view, catalog table ledger, interactive hardcover reader, live book spine previews, soundscapes, and full CRUD operations.
 
 ---
 

@@ -52,8 +52,8 @@ export default function LibraryHeader({
               <BookOpen size={24} color="#f59e0b" />
             </div>
             <div>
-              <h1 className="brand-title-text">LIBRARY MANAGEMENT SYSTEM</h1>
-              <p className="brand-subtitle-text">Curated Book & Digital Resource Archive</p>
+              <h1 className="brand-title-text">BOOK TRACKING SYSTEM</h1>
+              <p className="brand-subtitle-text">Curated Book & Digital Resource Tracker</p>
             </div>
           </div>
 
