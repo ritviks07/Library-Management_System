@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { 
   BookOpen, 
   Plus, 
@@ -13,7 +13,10 @@ import {
   BarChart3,
   X,
   SlidersHorizontal,
-  Check
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  StickyNote as StickyIcon
 } from 'lucide-react';
 import { sound } from '../utils/audio';
 
@@ -37,8 +40,19 @@ export default function LibraryHeader({
   isMuted,
   onToggleSound,
   totalBooksCount = 0,
-  availableCount = 0
+  availableCount = 0,
+  isStickyNoteOpen,
+  onToggleStickyNote
 }) {
+  const genreRowRef = useRef(null);
+
+  const scrollGenres = (direction) => {
+    if (genreRowRef.current) {
+      const scrollAmount = direction === 'left' ? -220 : 220;
+      genreRowRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   return (
     <header className="modern-header-glass">
       {/* Top Navbar Row */}
@@ -94,6 +108,15 @@ export default function LibraryHeader({
             style={{ padding: '0.45rem' }}
           >
             {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+          </button>
+
+          <button
+            className={`btn-glass ${isStickyNoteOpen ? 'active-sticky' : ''}`}
+            onClick={() => { sound.playPageFlip(); onToggleStickyNote(); }}
+            title="Toggle Sticky Memo"
+          >
+            <StickyIcon size={15} style={{ color: '#fde047' }} />
+            <span>Sticky Note</span>
           </button>
 
           <button
@@ -184,24 +207,48 @@ export default function LibraryHeader({
         </div>
       </div>
 
-      {/* Genre Filter */}
-      <div className="genre-pills-row" style={{ marginTop: '1rem', paddingTop: '0.85rem', borderTop: '1px solid var(--border-subtle)' }}>
-        <button
-          className={`genre-pill-btn ${selectedGenre === 'All' ? 'active' : ''}`}
-          onClick={() => { sound.playPageFlip(); setSelectedGenre('All'); }}
+      {/* Genre Filter Scroller */}
+      <div className="genre-scroller-container">
+        <button 
+          type="button"
+          className="genre-scroll-arrow left"
+          onClick={() => scrollGenres('left')}
+          title="Scroll left"
         >
-          All Genres
+          <ChevronLeft size={16} />
         </button>
-        {genres.map((g) => (
+
+        <div className="genre-pills-row" ref={genreRowRef}>
           <button
-            key={g}
-            className={`genre-pill-btn ${selectedGenre === g ? 'active' : ''}`}
-            onClick={() => { sound.playPageFlip(); setSelectedGenre(g); }}
+            className={`genre-pill-btn all-genres-pill ${selectedGenre === 'All' ? 'active' : ''}`}
+            onClick={() => { sound.playPageFlip(); setSelectedGenre('All'); }}
           >
-            {g}
+            All Genres
           </button>
-        ))}
+
+          <div className="genre-pill-separator" />
+
+          {genres.map((g) => (
+            <button
+              key={g}
+              className={`genre-pill-btn ${selectedGenre === g ? 'active' : ''}`}
+              onClick={() => { sound.playPageFlip(); setSelectedGenre(g); }}
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+
+        <button 
+          type="button"
+          className="genre-scroll-arrow right"
+          onClick={() => scrollGenres('right')}
+          title="Scroll right"
+        >
+          <ChevronRight size={16} />
+        </button>
       </div>
     </header>
   );
 }
+

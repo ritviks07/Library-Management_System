@@ -11,6 +11,7 @@ import DeleteConfirmation from './components/DeleteConfirmation';
 import StatsLedger from './components/StatsLedger';
 import EmptyShelf from './components/EmptyShelf';
 import NotificationToast from './components/NotificationToast';
+import StickyNote from './components/StickyNote';
 import { 
   fetchBooks, 
   fetchBookById, 
@@ -61,6 +62,19 @@ function AppContent() {
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [toast, setToast] = useState({ message: '', type: 'success' });
   const [isMuted, setIsMuted] = useState(sound.isMuted());
+
+  // Sticky Note State
+  const [isStickyNoteOpen, setIsStickyNoteOpen] = useState(() => {
+    return localStorage.getItem('athenaeum_sticky_open') !== 'false';
+  });
+
+  const handleToggleStickyNote = () => {
+    setIsStickyNoteOpen(prev => {
+      const next = !prev;
+      localStorage.setItem('athenaeum_sticky_open', next.toString());
+      return next;
+    });
+  };
 
   // Show toast notification
   const notify = (message, type = 'success') => {
@@ -262,6 +276,12 @@ function AppContent() {
     <div className="library-desk-bg">
       <div className="ambient-glow" />
 
+      {/* Floating Sticky Note Memo Pad */}
+      <StickyNote 
+        isOpen={isStickyNoteOpen} 
+        onClose={handleToggleStickyNote} 
+      />
+
       <div className="library-container">
         {/* Floating Glass Header Navigation */}
         <LibraryHeader
@@ -285,6 +305,8 @@ function AppContent() {
           onToggleSound={handleToggleSound}
           totalBooksCount={books.length}
           availableCount={availableCount}
+          isStickyNoteOpen={isStickyNoteOpen}
+          onToggleStickyNote={handleToggleStickyNote}
         />
 
         {/* Main Content: Open Book Modal / View Mode */}
