@@ -7,6 +7,7 @@
     "server:dev": "npm --prefix server run dev",
     "client": "npm --prefix client run dev",
     "deploy": "npm --prefix client run deploy",
+    "build:docs": "npm --prefix client run build && powershell -Command \"Copy-Item -Path client/dist\\* -Destination docs -Recurse -Force\"",
     "install:all": "npm --prefix server install && npm --prefix client install"
   }
 }
